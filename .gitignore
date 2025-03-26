@@ -132,6 +132,7 @@ celerybeat.pid
 .venv
 env/
 venv/
+venv310/
 ENV/
 env.bak/
 venv.bak/
@@ -172,3 +173,12 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# OpenAI credentials
+credentials.txt
+
+# Media files
+voice_project/media/
+
+# Ignore all MP3 files
+*.mp3
