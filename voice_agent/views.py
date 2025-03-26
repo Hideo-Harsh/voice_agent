@@ -1,8 +1,10 @@
 import os
-import whisper
 import openai
+import whisper
+from django.views import View
 from pydub import AudioSegment
 from django.conf import settings
+from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -55,3 +57,10 @@ class VoiceQueryView(APIView):
             "ai_response": ai_response,
             "audio_url": f"{settings.MEDIA_URL}response_audio.mp3"
         }, status=200)
+    
+    from django.shortcuts import render
+
+class VoiceChatPage(View):
+    def get(self, request):
+        return render(request, "voice_agent/chat.html")  # New frontend template
+

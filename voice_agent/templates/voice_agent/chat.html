@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Agent</title>
+</head>
+<body>
+    <h1>Voice Agent</h1>
+
+    <button id="recordBtn">🎙️ Record</button>
+    <p id="status">Press record to start speaking...</p>
+
+    <audio id="responseAudio" controls style="display: none;"></audio>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.getElementById("recordBtn").addEventListener("click", async () => {
+            if (!mediaRecorder || mediaRecorder.state === "inactive") {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        async function startRecording() {
+            document.getElementById("status").innerText = "Recording...";
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                document.getElementById("status").innerText = "Processing audio...";
+
+                const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                const formData = new FormData();
+                formData.append("audio", audioBlob, "recorded_audio.wav");
+
+                const response = await fetch("/voice/ask/", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                document.getElementById("status").innerText = "Response received!";
+
+                const audioPlayer = document.getElementById("responseAudio");
+                audioPlayer.src = data.audio_url;
+                audioPlayer.style.display = "block";
+            };
+
+            mediaRecorder.start();
+        }
+
+        function stopRecording() {
+            document.getElementById("status").innerText = "Stopping...";
+            mediaRecorder.stop();
+        }
+    </script>
+</body>
+</html>
